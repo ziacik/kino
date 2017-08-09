@@ -1,0 +1,32 @@
+{
+  "name": "resource",
+  "plural": "resources",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "type": {
+      "type": "string",
+      "required": true
+    },
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "year": {
+      "type": "number"
+    },
+    "season": {
+      "type": "number"
+    },
+    "externalId": {
+      "type": "string"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
