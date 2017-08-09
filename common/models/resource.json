@@ -26,7 +26,13 @@
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "parent": {
+      "type": "belongsTo",
+      "model": "resource",
+      "foreignKey": ""
+    }
+  },
   "acls": [],
   "methods": {}
 }
