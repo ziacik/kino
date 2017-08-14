@@ -34,5 +34,34 @@
     }
   },
   "acls": [],
-  "methods": {}
+  "methods": {
+    "discover": {
+      "accepts": [
+        {
+          "arg": "query",
+          "type": "string",
+          "required": true,
+          "description": "A query for the discovery (name)",
+          "http": {
+            "source": "query"
+          }
+        }
+      ],
+      "returns": [
+        {
+          "arg": "resources",
+          "type": "array",
+          "root": true,
+          "description": "An array of dicovered resources"
+        }
+      ],
+      "description": "Discovers resources from external source (like tvdb)",
+      "http": [
+        {
+          "path": "/resources/discovery",
+          "verb": "get"
+        }
+      ]
+    }
+  }
 }
