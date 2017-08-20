@@ -58,7 +58,7 @@
       "description": "Discovers resources from external source (like tvdb)",
       "http": [
         {
-          "path": "/resources/discovery",
+          "path": "/discovery",
           "verb": "get"
         }
       ]

@@ -8,7 +8,9 @@ function createShowResources(Resource, tvdbData) {
 		let resource = new Resource();
 		resource.type = 'show';
 		resource.title = one.seriesName;
-		return one;
+		resource.overview = one.overview;
+		resource.banner = one.banner;
+		return resource;
 	});
 }
 
