@@ -1,6 +1,0 @@
-{
-	"extends": "loopback",
-	"rules": {
-		"indent": ["error", "tab"]
-	}
-}
