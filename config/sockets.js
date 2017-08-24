@@ -11,7 +11,7 @@
 
 module.exports.sockets = {
 
-  /***************************************************************************
+	/***************************************************************************
   *                                                                          *
   * `transports`                                                             *
   *                                                                          *
@@ -27,10 +27,10 @@ module.exports.sockets = {
   *                                                                          *
   ***************************************************************************/
 
-  // transports: [ 'websocket' ],
+	// transports: [ 'websocket' ],
 
 
-  /***************************************************************************
+	/***************************************************************************
   *                                                                          *
   * `beforeConnect`                                                          *
   *                                                                          *
@@ -42,16 +42,16 @@ module.exports.sockets = {
   *                                                                          *
   ***************************************************************************/
 
-  // beforeConnect: function(handshake, proceed) {
-  //
-  //   // `true` allows the socket to connect.
-  //   // (`false` would reject the connection)
-  //   return proceed(undefined, true);
-  //
-  // },
+	// beforeConnect: function(handshake, proceed) {
+	//
+	//   // `true` allows the socket to connect.
+	//   // (`false` would reject the connection)
+	//   return proceed(undefined, true);
+	//
+	// },
 
 
-  /***************************************************************************
+	/***************************************************************************
   *                                                                          *
   * `afterDisconnect`                                                        *
   *                                                                          *
@@ -60,23 +60,23 @@ module.exports.sockets = {
   *                                                                          *
   ***************************************************************************/
 
-  // afterDisconnect: function(session, socket, done) {
-  //
-  //   // By default: do nothing.
-  //   // (but always trigger the callback)
-  //   return done();
-  //
-  // },
+	// afterDisconnect: function(session, socket, done) {
+	//
+	//   // By default: do nothing.
+	//   // (but always trigger the callback)
+	//   return done();
+	//
+	// },
 
 
-  /***************************************************************************
+	/***************************************************************************
    *                                                                          *
    * Whether to expose a 'GET /__getcookie' route that sets an HTTP-only      *
    * session cookie.                                                          *
    *                                                                          *
    ***************************************************************************/
 
-   // grant3rdPartyCookie: true,
+	// grant3rdPartyCookie: true,
 
 
 };

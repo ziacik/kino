@@ -11,17 +11,17 @@
 
 module.exports.session = {
 
-  /***************************************************************************
+	/***************************************************************************
   *                                                                          *
   * Session secret is automatically generated when your new app is created   *
   * Replace at your own risk in production-- you will invalidate the cookies *
   * of your users, forcing them to log in again.                             *
   *                                                                          *
   ***************************************************************************/
-  secret: '57b800ecb1b4a8b051faa3cbabd0779e',
+	secret: '57b800ecb1b4a8b051faa3cbabd0779e',
 
 
-  /***************************************************************************
+	/***************************************************************************
   *                                                                          *
   * Customize when built-in session support will be skipped.                 *
   *                                                                          *
@@ -32,8 +32,8 @@ module.exports.session = {
   * https://sailsjs.com/config/session                                       *
   *                                                                          *
   ***************************************************************************/
-  // isSessionDisabled: function (req){
-  //   return !!req.path.match(req._sails.LOOKS_LIKE_ASSET_RX);
-  // },
+	// isSessionDisabled: function (req){
+	//   return !!req.path.match(req._sails.LOOKS_LIKE_ASSET_RX);
+	// },
 
 };
