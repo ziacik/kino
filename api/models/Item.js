@@ -14,17 +14,9 @@ module.exports = {
 		type: {
 			type: 'string',
 			required: true,
-			inIn: ['movie', 'show', 'season', 'artist', 'album']
+			in: ['movie', 'show', 'season', 'artist', 'album']
 		},
 		year: {
-			type: 'number',
-			required: true
-		},
-		externalId: {
-			type: 'string',
-			required: true
-		},
-		externalSource: {
 			type: 'string',
 			required: true
 		},
@@ -33,6 +25,9 @@ module.exports = {
 		},
 		overview: {
 			type: 'string'
+		},
+		externalIds: {
+			type: 'json'
 		}
 	},
 };

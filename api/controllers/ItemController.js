@@ -12,6 +12,18 @@ module.exports = {
 		}
 
 		return DiscoveryService.discover(req.params.query).then(items => res.json(items));
+	},
+
+	kvak: function(req, res) {
+		return Item.find({
+			externalIds: {
+				contains: {
+					map: {
+						imdb: 'tt0773262'
+					}
+				}
+			}
+		}).then(items => res.json(items));
 	}
 
 };
