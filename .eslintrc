@@ -1,6 +1,13 @@
 {
-	"extends": "loopback",
-	"rules": {
-		"indent": ["error", "tab"]
-	}
+    "env": {
+        "node": true,
+        "es6": true,
+        "mocha": true
+    },
+    "extends": ["eslint:recommended"],
+    "rules": {
+        "indent": ["error", "tab"],
+        "no-tabs": 0,
+        "semi": ["error", "always"]
+    }
 }
