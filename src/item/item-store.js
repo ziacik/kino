@@ -3,7 +3,10 @@ const Item = require('./item');
 
 class ItemStore extends Datastore {
 	constructor() {
-		super({});
+		super({
+			filename: './db/item.db',
+			autoload: true
+		});
 		this.attachModel(Item);
 	}
 }
