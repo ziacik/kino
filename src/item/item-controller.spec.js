@@ -24,7 +24,7 @@ describe('ItemController', () => {
 
 	it('sets the routes up', () => {
 		controller.setupRoutes(server);
-		expect(server.get).to.have.been.calledWith('/item');
-		expect(server.post).to.have.been.calledWith('/item');
+		expect(server.get).to.have.been.calledWith('/items');
+		expect(server.post).to.have.been.calledWith('/items');
 	});
 });

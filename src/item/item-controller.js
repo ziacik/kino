@@ -7,8 +7,8 @@ class ItemController extends Controller {
 	}
 
 	setupRoutes(server) {
-		server.get('/item', this.find.bind(this));
-		server.post('/item', this.add.bind(this));
+		server.get('/items', this.find.bind(this));
+		server.post('/items', this.add.bind(this));
 		// server.get('/item/imdb/:imdbId', this.findByImdbId.bind(this));
 	}
 
