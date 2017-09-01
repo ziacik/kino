@@ -7,6 +7,9 @@ const sinon = require('sinon');
 
 module.exports = {
 	error: new Error('some error'),
+	rethrowHandleError: controller => {
+		controller.handleError = e => { throw(e); };
+	},
 	mockHandleError: controller => {
 		sinon.stub(controller, 'handleError');
 	},

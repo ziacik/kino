@@ -47,5 +47,6 @@ module.exports['@require'] = [
 	'restify',
 	'restify-plugins',
 	'restify-cors-middleware',
-	'item/item-controller'
+	'item/item-controller',
+	'item/item-state-controller'
 ];
