@@ -1,6 +1,6 @@
 class Torrent {
-	constructor(magnet) {
-		this.magnet = magnet;
+	constructor(data) {
+		Object.assign(this, data);
 	}
 }
 

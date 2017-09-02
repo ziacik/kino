@@ -27,7 +27,8 @@
 		"restify-cors-middleware": "^1.0.1",
 		"restify-errors": "^5.0.0",
 		"restify-plugins": "^1.6.0",
-		"socket.io": "^2.0.3"
+		"socket.io": "^2.0.3",
+		"thepiratebay": "^1.4.5"
 	},
 	"devDependencies": {
 		"chai": "^4.1.1",
