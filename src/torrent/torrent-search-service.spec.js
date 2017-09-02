@@ -6,7 +6,7 @@ chai.use(require('sinon-chai'));
 const test = require('../test');
 const TorrentSearchService = require('./torrent-search-service');
 
-describe('ItemController', () => {
+describe('TorrentSearchService', () => {
 	let service;
 	let logger;
 	let item;
