@@ -17,5 +17,17 @@ module.exports = {
 		return promise.then(() => {
 			expect(controller.handleError).to.have.been.calledWith(module.exports.error);
 		});
+	},
+	postponed: (postponeMillis, callback) => {
+		return new Promise((resolve, reject) => {
+			setTimeout(() => {
+				try {
+					callback();
+					resolve();
+				} catch (e) {
+					reject(e);
+				}
+			}, postponeMillis);
+		});
 	}
 };
