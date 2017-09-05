@@ -87,7 +87,22 @@ class CommandQueue {
 		command.execute().then(() => {
 			this.executing = null;
 			this._pickupNext();
-		}); // TODO catch
+		}).catch(e => {
+			command.error = e.message;
+			this._retry(command);
+			this.executing = null;
+			this._pickupNext();
+		});
+	}
+
+	_retry(command) {
+		const retryNo = command.retryNo || 0;
+		if (retryNo >= (command.maxRetryCount || 0)) {
+			return;
+		}
+
+		command.retryNo = retryNo + 1;
+		this.add(command, command.retryDelay);
 	}
 }
 
