@@ -1,5 +1,8 @@
-class CommandQueue {
+const EventEmitter = require('events');
+
+class CommandQueue extends EventEmitter {
 	constructor(logger) {
+		super();
 		this.logger = logger;
 		this.commands = [];
 	}
@@ -85,19 +88,20 @@ class CommandQueue {
 		this.executing = command;
 		this.nearestPlannedCommand = null;
 		command.execute().then(() => {
+			this.emit('done', command);
 			this.executing = null;
 			this._pickupNext();
 		}).catch(e => {
-			command.error = e.message;
-			this._retry(command);
+			this._retry(command, e);
 			this.executing = null;
 			this._pickupNext();
 		});
 	}
 
-	_retry(command) {
+	_retry(command, error) {
 		const retryNo = command.retryNo || 0;
 		if (retryNo >= (command.maxRetryCount || 0)) {
+			this.emit('error', command, error);
 			return;
 		}
 

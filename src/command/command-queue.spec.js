@@ -6,7 +6,7 @@ chai.use(require('sinon-chai'));
 const test = require('../test');
 const CommandQueue = require('./command-queue');
 
-describe.only('CommandQueue', () => {
+describe('CommandQueue', () => {
 	let queue;
 	let logger;
 	let command;
@@ -23,6 +23,7 @@ describe.only('CommandQueue', () => {
 			execute: sinon.stub().resolves()
 		};
 		queue = new CommandQueue(logger);
+		queue.on('error', () => {});
 	});
 
 	function withLongRunningCommand() {
@@ -82,30 +83,81 @@ describe.only('CommandQueue', () => {
 		}));
 	});
 
-	describe('when error occurs in execution', () => {
-		let itemState;
+	it('emits a done event when immediate command resolves', done => {
+		queue.on('done', c => {
+			try {
+				expect(c).to.equal(command);
+				done();
+			} catch (e) {
+				done(e);
+			}
+		});
+		queue.add(command);
+	});
 
+	it('emits a done event when postponed command resolves', done => {
+		queue.on('done', c => {
+			try {
+				expect(c).to.equal(command);
+				done();
+			} catch (e) {
+				done(e);
+			}
+		});
+		queue.add(command, 100);
+	});
+
+	it('does not emit an error event after success', done => {
+		queue.on('error', () => done(new Error('Expected not to emit failed event')));
+		queue.on('done', () => done());
+		queue.add(command);
+	});
+
+	describe('when error occurs in execution', () => {
 		beforeEach(() => {
-			itemState = {
-				state: 'some'
-			};
-			command.itemState = itemState;
 			command.execute.rejects(test.error);
+		});
+
+		it('does not emit a done event', done => {
+			queue.on('done', () => done(new Error('Expected not to emit finished event')));
+			queue.on('error', () => done());
+			queue.add(command);
+		});
+
+		it('emits an error event', done => {
+			queue.on('error', (c, err) => {
+				try {
+					expect(c).to.equal(command);
+					expect(err).to.equal(test.error);
+					done();
+				} catch (e) {
+					done(e);
+				}
+			});
+			queue.add(command);
+		});
+
+		it('emits an error event after last retry if the command is retryable', done => {
+			command.maxRetryCount = 3;
+			queue.on('error', (c, err) => {
+				try {
+					expect(c).to.equal(command);
+					expect(c.retryNo).to.equal(3);
+					expect(err).to.equal(test.error);
+					done();
+				} catch (e) {
+					done(e);
+				}
+			});
+			queue.add(command);
 		});
 
 		it('does not prevent next command in execution', () => {
 			queue.add(command, 100);
 			queue.add(anotherCommand, 200);
 
-			return test.postponed(210, () => {
+			return test.postponed(220, () => {
 				expect(anotherCommand.execute).to.have.been.called;
-			});
-		});
-
-		it('sets an error to the command', () => {
-			queue.add(command);
-			return test.postponed(1, () => {
-				expect(command.error).to.equal(test.error.message);
 			});
 		});
 
