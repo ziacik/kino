@@ -29,5 +29,5 @@ class CommandFactory {
 module.exports = CommandFactory;
 module.exports['@singleton'] = true;
 module.exports['@require'] = [
-	'./command/torrent-search-command'
+	'../torrent/torrent-search-command'
 ];

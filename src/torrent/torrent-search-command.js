@@ -3,7 +3,7 @@ class TorrentSearchCommand {
 		this.torrentSearchService = torrentSearchService;
 	}
 
-	cloneForItem(item) {
+	create(item) {
 		let clone = new TorrentSearchCommand(this.torrentSearchService);
 		clone.item = item;
 		return clone;
@@ -15,4 +15,4 @@ class TorrentSearchCommand {
 }
 
 module.exports = TorrentSearchCommand;
-module.exports['@require'] = ['../../torrent/torrent-search-service'];
+module.exports['@require'] = ['./torrent-search-service'];

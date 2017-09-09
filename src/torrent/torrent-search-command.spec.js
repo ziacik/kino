@@ -21,9 +21,9 @@ describe('TorrentSearchCommand', () => {
 		command = new TorrentSearchCommand(torrentSearchService);
 	});
 
-	describe('#cloneForItem', () => {
+	describe('#create', () => {
 		it('creates a new command with the same data', () => {
-			let another = command.cloneForItem(item);
+			let another = command.create(item);
 			expect(another).not.to.equal(command);
 			expect(another.torrentSearchService).to.equal(torrentSearchService);
 			expect(another.item).to.equal(item);
