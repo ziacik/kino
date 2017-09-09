@@ -11,13 +11,17 @@ describe('CommandQueue', () => {
 	let logger;
 	let command;
 	let anotherCommand;
+	let commandResult;
 
 	beforeEach(() => {
 		logger = {
 			error: sinon.stub()
 		};
+		commandResult = {
+			some: 'result'
+		};
 		command = {
-			execute: sinon.stub().resolves()
+			execute: sinon.stub().resolves(commandResult)
 		};
 		anotherCommand = {
 			execute: sinon.stub().resolves()
@@ -83,10 +87,11 @@ describe('CommandQueue', () => {
 		}));
 	});
 
-	it('emits a done event when immediate command resolves', done => {
-		queue.on('done', c => {
+	it('emits a done event when immediate command resolves with result of the command', done => {
+		queue.on('done', (c, result) => {
 			try {
 				expect(c).to.equal(command);
+				expect(result).to.equal(commandResult);
 				done();
 			} catch (e) {
 				done(e);
@@ -95,10 +100,11 @@ describe('CommandQueue', () => {
 		queue.add(command);
 	});
 
-	it('emits a done event when postponed command resolves', done => {
-		queue.on('done', c => {
+	it('emits a done event when postponed command resolves with result of the command', done => {
+		queue.on('done', (c, result) => {
 			try {
 				expect(c).to.equal(command);
+				expect(result).to.equal(commandResult);
 				done();
 			} catch (e) {
 				done(e);

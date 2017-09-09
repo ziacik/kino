@@ -7,21 +7,21 @@ class CommandFactory {
 		return this._createCommand(0, forItem);
 	}
 
-	createNextCommand(afterCommand, forItem) {
+	createNextCommand(afterCommand, forItem, previousCommandResult) {
 		let index = this.commandPrototypes.findIndex(it => it instanceof afterCommand.constructor);
 
 		if (index < 0) {
 			return;
 		}
 
-		return this._createCommand(index + 1, forItem);
+		return this._createCommand(index + 1, forItem, previousCommandResult);
 	}
 
-	_createCommand(prototypeIndex, forItem) {
+	_createCommand(prototypeIndex, forItem, previousCommandResult) {
 		let prototype = this.commandPrototypes[prototypeIndex];
 
 		if (prototype) {
-			return prototype.cloneForItem(forItem);
+			return prototype.create(forItem, previousCommandResult);
 		}
 	}
 }
@@ -29,4 +29,5 @@ class CommandFactory {
 module.exports = CommandFactory;
 module.exports['@singleton'] = true;
 module.exports['@require'] = [
+	'../torrent/torrent-search-command'
 ];

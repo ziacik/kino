@@ -4,7 +4,7 @@ class CommandManager {
 		this.commandQueue = commandQueue;
 		this.commandFactory = commandFactory;
 		this.commandItemMap = new WeakMap();
-		this.commandQueue.on('done', command => this._commandDone(command));
+		this.commandQueue.on('done', (command, commandResult) => this._commandDone(command, commandResult));
 		this.commandQueue.on('error', (command, e) => this._commandFailed(command, e));
 	}
 
@@ -14,18 +14,18 @@ class CommandManager {
 		this.commandQueue.add(command, command.delay);
 	}
 
-	_commandDone(command) {
+	_commandDone(command, commandResult) {
 		let item = this.commandItemMap.get(command);
 		this.commandItemMap.delete(command);
-		this._addNext(command, item);
+		this._addNext(command, item, commandResult);
 	}
 
 	_commandFailed(command, error) {
 		this.logger.error(error);
 	}
 
-	_addNext(afterCommand, forItem) {
-		let nextCommand = this.commandFactory.createNextCommand(afterCommand, forItem);
+	_addNext(afterCommand, forItem, commandResult) {
+		let nextCommand = this.commandFactory.createNextCommand(afterCommand, forItem, commandResult);
 		if (nextCommand) {
 			this.commandItemMap.set(nextCommand, forItem);
 			this.commandQueue.add(nextCommand, nextCommand.delay);

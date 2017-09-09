@@ -87,8 +87,8 @@ class CommandQueue extends EventEmitter {
 	_execute(command) {
 		this.executing = command;
 		this.nearestPlannedCommand = null;
-		command.execute().then(() => {
-			this.emit('done', command);
+		command.execute().then(result => {
+			this.emit('done', command, result);
 			this.executing = null;
 			this._pickupNext();
 		}).catch(e => {

@@ -32,4 +32,4 @@ class TorrentSearchService {
 
 module.exports = TorrentSearchService;
 module.exports['@singleton'] = true;
-module.exports['@require'] = ['../logger'];
+module.exports['@require'] = ['../logger', './search-engine/tpb-engine'];
