@@ -1,8 +1,5 @@
-const Controller = require('../common/controller');
-
-class ItemStateController extends Controller {
+class ItemStateController {
 	constructor(errors, logger, itemStateFactory, store, itemStore) {
-		super(errors, logger);
 		this.itemStateFactory = itemStateFactory;
 		this.store = store;
 		this.itemStore = itemStore;

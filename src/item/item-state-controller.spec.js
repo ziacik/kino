@@ -4,7 +4,6 @@ const expect = chai.expect;
 chai.use(require('sinon-chai'));
 
 const test = require('../test');
-const Controller = require('../common/controller');
 const ItemStateController = require('./item-state-controller');
 
 describe('ItemStateController', () => {
@@ -36,10 +35,6 @@ describe('ItemStateController', () => {
 		};
 		controller = new ItemStateController(test.errors, test.logger, itemStateFactory, itemStateStore, itemStore);
 		test.rethrowHandleError(controller);
-	});
-
-	it('extends controller', () => {
-		expect(controller).to.be.an.instanceof(Controller);
 	});
 
 	it('sets the routes up', () => {
