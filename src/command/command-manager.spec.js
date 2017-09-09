@@ -14,6 +14,7 @@ describe('CommandManager', () => {
 	let item;
 	let firstCommand;
 	let nextCommand;
+	let commandResult;
 	let subscriptions = {};
 
 	beforeEach(() => {
@@ -23,6 +24,9 @@ describe('CommandManager', () => {
 		item = {
 			_id: 'item-id',
 			some: 'item'
+		};
+		commandResult = {
+			some: 'result'
 		};
 		queue = {
 			add: sinon.stub(),
@@ -34,7 +38,7 @@ describe('CommandManager', () => {
 			createFirstCommand: sinon.stub().returns(firstCommand),
 			createNextCommand: sinon.stub()
 		};
-		factory.createNextCommand.withArgs(firstCommand, item).returns(nextCommand);
+		factory.createNextCommand.withArgs(firstCommand, item, commandResult).returns(nextCommand);
 		factory.createNextCommand.withArgs(nextCommand, item).returns(null);
 		manager = new CommandManager(logger, queue, factory);
 	});
@@ -61,16 +65,16 @@ describe('CommandManager', () => {
 		it('creates next command and enqueues it if it is not null', () => {
 			manager.add(item, firstCommand);
 			queue.add.reset();
-			subscriptions.done(firstCommand);
-			expect(factory.createNextCommand).to.have.been.calledWith(firstCommand, item);
+			subscriptions.done(firstCommand, commandResult);
+			expect(factory.createNextCommand).to.have.been.calledWith(firstCommand, item, commandResult);
 			expect(queue.add).to.have.been.calledWith(nextCommand, 1234);
 		});
 
 		it('does not do anything more if there is no next command', () => {
 			manager.add(item, nextCommand);
 			queue.add.reset();
-			subscriptions.done(nextCommand);
-			expect(factory.createNextCommand).to.have.been.calledWith(nextCommand, item);
+			subscriptions.done(nextCommand, commandResult);
+			expect(factory.createNextCommand).to.have.been.calledWith(nextCommand, item, commandResult);
 			expect(queue.add).not.to.have.been.called;
 		});
 	});
