@@ -8,7 +8,7 @@ class CommandManager {
 	}
 
 	add(item, currentCommand) {
-		let command = currentCommand || new this.firstCommandFactory(item);
+		let command = currentCommand || this.firstCommandFactory.create(item);
 		this.commandQueue.add(command, command.delay);
 	}
 
@@ -25,4 +25,4 @@ class CommandManager {
 
 module.exports = CommandManager;
 module.exports['@singleton'] = true;
-module.exports['@require'] = ['../logger', './command-queue', '../torrent/torrent-search-command'];
+module.exports['@require'] = ['../logger', './command-queue', '../torrent/torrent-search-command-factory'];

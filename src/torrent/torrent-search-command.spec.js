@@ -18,24 +18,14 @@ describe('TorrentSearchCommand', () => {
 		torrentSearchService = {
 			search: sinon.stub().resolves('torrent search result')
 		};
-		command = new TorrentSearchCommand(torrentSearchService);
-	});
-
-	describe('#create', () => {
-		it('creates a new command with the same data', () => {
-			let another = command.create(item);
-			expect(another).not.to.equal(command);
-			expect(another.torrentSearchService).to.equal(torrentSearchService);
-			expect(another.item).to.equal(item);
-		});
+		command = new TorrentSearchCommand(item, torrentSearchService);
 	});
 
 	describe('#execute', () => {
-		it('executes a search on torrent search service and returns the result from it', () => {
+		it('executes a search on torrent search service', () => {
 			command.item = item;
-			return command.execute().then(result => {
+			return command.execute().then(() => {
 				expect(torrentSearchService.search).to.have.been.calledWith(item);
-				expect(result).to.equal('torrent search result');
 			});
 		});
 	});

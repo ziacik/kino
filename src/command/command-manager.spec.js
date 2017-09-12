@@ -30,7 +30,9 @@ describe('CommandManager', () => {
 		};
 		firstCommand = { first: 'command' };
 		nextCommand = { next: 'command', delay: 1234 };
-		firstCommandFactory = sinon.stub().returns(firstCommand);
+		firstCommandFactory = {
+			create: sinon.stub().returns(firstCommand)
+		};
 		manager = new CommandManager(logger, queue, firstCommandFactory);
 	});
 
@@ -38,7 +40,7 @@ describe('CommandManager', () => {
 		describe('without a command', () => {
 			it('creates and enqueues the first command', () => {
 				manager.add(item);
-				expect(firstCommandFactory).to.have.been.calledWith(item);
+				expect(firstCommandFactory.create).to.have.been.calledWith(item);
 				expect(queue.add).to.have.been.calledWith(firstCommand);
 			});
 		});
@@ -46,7 +48,7 @@ describe('CommandManager', () => {
 		describe('with a command', () => {
 			it('enqueues the command', () => {
 				manager.add(item, firstCommand);
-				expect(firstCommandFactory).not.to.have.been.called;
+				expect(firstCommandFactory.create).not.to.have.been.called;
 				expect(queue.add).to.have.been.calledWith(firstCommand);
 			});
 		});
