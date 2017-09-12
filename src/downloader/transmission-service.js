@@ -15,14 +15,12 @@ class TransmissionService {
 		});
 	}
 
-	getState(itemState) {
-		console.log(itemState.torrentId);
+	getState(torrentId) {
 		return this.client.torrentGet({
-			// ids: [itemState.torrentId.arguments['torrent-added'].id],
+			ids: [torrentId],
 			fields: ['id', 'isFinished', 'isStalled']
 		}).then(result => {
-			console.log(result);
-			let torrentInfo = result.arguments.torrents.filter(it => it.id === itemState.torrentId)[0];
+			let torrentInfo = result.arguments.torrents.filter(it => it.id === torrentId)[0];
 
 			if (!torrentInfo) {
 				return 'removed';

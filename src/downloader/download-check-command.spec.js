@@ -8,38 +8,33 @@ const DownloadCheckCommand = require('./download-check-command');
 describe('DownloadCheckCommand', () => {
 	let command;
 	let item;
-	let itemState;
 	let downloadService;
+	let downloadCheckCommandFactory;
+	let nextDownloadCheckCommand;
 
 	beforeEach(() => {
-		itemState = {
-			item: 'item-id',
-			torrentId: 'torrent-id'
-		};
 		downloadService = {
 			getState: sinon.stub().resolves('some state')
 		};
-		command = new DownloadCheckCommand(downloadService);
-	});
-
-	describe('#create', () => {
-		it('creates a new command with the same data', () => {
-			let another = command.create(item, itemState);
-			expect(another).not.to.equal(command);
-			expect(another.downloadService).to.equal(downloadService);
-			expect(another.item).to.equal(item);
-			expect(another.itemState).to.equal(itemState);
-			expect(another.delay).to.equal(10000);
-		});
+		nextDownloadCheckCommand = {};
+		downloadCheckCommandFactory = {
+			create: sinon.stub().returns(nextDownloadCheckCommand)
+		};
+		command = new DownloadCheckCommand(item, 'torrent-id', downloadService, downloadCheckCommandFactory);
 	});
 
 	describe('#execute', () => {
-		it('checks state of the torrent with download service and returns it', () => {
-			command.item = item;
-			command.itemState = itemState;
-			return command.execute().then(result => {
-				expect(downloadService.getState).to.have.been.calledWith(itemState);
-				expect(result).to.equal('some state');
+		it('checks state of the torrent with download service', () => {
+			return command.execute().then(() => {
+				expect(downloadService.getState).to.have.been.calledWith('torrent-id');
+			});
+		});
+
+		it('returns another download check command if the state is "downloading"', () => {
+			downloadService.getState.resolves('downloading');
+			return command.execute().then(nextCommand => {
+				expect(nextCommand).to.equal(nextDownloadCheckCommand);
+				expect(downloadCheckCommandFactory.create).to.have.been.calledWith(item, 'torrent-id');
 			});
 		});
 	});

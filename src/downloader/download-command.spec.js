@@ -10,6 +10,8 @@ describe('DownloadCommand', () => {
 	let item;
 	let torrent;
 	let downloadService;
+	let downloadCheckCommandFactory;
+	let downloadCheckCommand;
 
 	beforeEach(() => {
 		item = {
@@ -20,28 +22,26 @@ describe('DownloadCommand', () => {
 			magnetLink: 'magnet:link'
 		};
 		downloadService = {
-			download: sinon.stub().resolves(123)
+			download: sinon.stub().resolves('torrent-id')
 		};
-		command = new DownloadCommand(downloadService);
-	});
-
-	describe('#create', () => {
-		it('creates a new command with the same data', () => {
-			let another = command.create(item, torrent);
-			expect(another).not.to.equal(command);
-			expect(another.downloadService).to.equal(downloadService);
-			expect(another.item).to.equal(item);
-			expect(another.torrent).to.equal(torrent);
-		});
+		downloadCheckCommand = {};
+		downloadCheckCommandFactory = {
+			create: sinon.stub().resolves(downloadCheckCommand)
+		};
+		command = new DownloadCommand(item, torrent, downloadService, downloadCheckCommandFactory);
 	});
 
 	describe('#execute', () => {
-		it('adds a torrent to download service and returns id of the download', () => {
-			command.item = item;
-			command.torrent = torrent;
-			return command.execute().then(result => {
+		it('adds a torrent to download service', () => {
+			return command.execute().then(() => {
 				expect(downloadService.download).to.have.been.calledWith(torrent);
-				expect(result).to.equal(123);
+			});
+		});
+
+		it('returns download check command initialized with id of the download', () => {
+			return command.execute().then(result => {
+				expect(downloadCheckCommandFactory.create).to.have.been.calledWith(item, 'torrent-id');
+				expect(result).to.equal(downloadCheckCommand);
 			});
 		});
 	});
