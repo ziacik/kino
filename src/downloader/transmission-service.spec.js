@@ -10,6 +10,7 @@ describe('TransmissionService', () => {
 	let service;
 	let logger;
 	let torrent;
+	let clientFactory;
 	let client;
 	let itemState;
 	let torrentStateResult;
@@ -32,10 +33,19 @@ describe('TransmissionService', () => {
 			torrentAdd: sinon.stub().resolves(),
 			torrentGet: sinon.stub().resolves(torrentStateResult)
 		};
+		clientFactory = sinon.stub().returns(client);
 		itemState = {
 			torrentId: 'torrent-id'
 		};
-		service = new TransmissionService(logger, client);
+		service = new TransmissionService(logger, clientFactory);
+	});
+
+	describe('#constructor', () => {
+		it('creates a client from factory', () => {
+			expect(clientFactory).to.have.been.calledWith({
+				url: 'http://localhost:9091/transmission/rpc'
+			});
+		});
 	});
 
 	describe('#download', () => {

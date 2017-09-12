@@ -1,7 +1,9 @@
 class TransmissionService {
-	constructor(logger, client) {
+	constructor(logger, clientFactory) {
 		this.logger = logger;
-		this.client = client;
+		this.client = new clientFactory({
+			url: 'http://localhost:9091/transmission/rpc'
+		});
 	}
 
 	download(torrent) {
@@ -14,10 +16,12 @@ class TransmissionService {
 	}
 
 	getState(itemState) {
+		console.log(itemState.torrentId);
 		return this.client.torrentGet({
-			ids: [itemState.torrentId],
+			// ids: [itemState.torrentId.arguments['torrent-added'].id],
 			fields: ['id', 'isFinished', 'isStalled']
 		}).then(result => {
+			console.log(result);
 			let torrentInfo = result.arguments.torrents.filter(it => it.id === itemState.torrentId)[0];
 
 			if (!torrentInfo) {

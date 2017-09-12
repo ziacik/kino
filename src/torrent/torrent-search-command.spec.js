@@ -16,7 +16,11 @@ describe('TorrentSearchCommand', () => {
 			some: 'item'
 		};
 		torrentSearchService = {
-			search: sinon.stub().resolves('torrent search result')
+			search: sinon.stub().resolves({
+				torrents: [
+					'torrent search result'
+				]
+			})
 		};
 		command = new TorrentSearchCommand(item, torrentSearchService);
 	});

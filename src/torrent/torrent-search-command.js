@@ -5,7 +5,9 @@ class TorrentSearchCommand {
 	}
 
 	execute() {
-		return this.torrentSearchService.search(this.item);
+		return this.torrentSearchService.search(this.item).then(result => {
+			return result.torrents[0];
+		});
 	}
 }
 
