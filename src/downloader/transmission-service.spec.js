@@ -10,8 +10,8 @@ describe('TransmissionService', () => {
 	let service;
 	let logger;
 	let torrent;
+	let clientFactory;
 	let client;
-	let itemState;
 	let torrentStateResult;
 
 	beforeEach(() => {
@@ -32,10 +32,16 @@ describe('TransmissionService', () => {
 			torrentAdd: sinon.stub().resolves(),
 			torrentGet: sinon.stub().resolves(torrentStateResult)
 		};
-		itemState = {
-			torrentId: 'torrent-id'
-		};
-		service = new TransmissionService(logger, client);
+		clientFactory = sinon.stub().returns(client);
+		service = new TransmissionService(logger, clientFactory);
+	});
+
+	describe('#constructor', () => {
+		it('creates a client from factory', () => {
+			expect(clientFactory).to.have.been.calledWith({
+				url: 'http://localhost:9091/transmission/rpc'
+			});
+		});
 	});
 
 	describe('#download', () => {
@@ -61,7 +67,7 @@ describe('TransmissionService', () => {
 	describe('#getState', () => {
 		it('logs an error in case of error and rethrows', () => {
 			client.torrentGet.rejects(test.error);
-			return service.getState(itemState).then(() => {
+			return service.getState('torrent-id').then(() => {
 				throw new Error('Not expected to resolve');
 			}).catch(e => {
 				expect(e).to.equal(test.error);
@@ -70,7 +76,7 @@ describe('TransmissionService', () => {
 		});
 
 		it('requests a state of the torrent', () => {
-			return service.getState(itemState).then(() => {
+			return service.getState('torrent-id').then(() => {
 				expect(client.torrentGet).to.have.been.calledWith(sinon.match({
 					ids: ['torrent-id']
 				}));
@@ -79,27 +85,27 @@ describe('TransmissionService', () => {
 
 		it('returns "finished" when the torrent is finished', () => {
 			torrentStateResult.arguments.torrents[0].isFinished = true;
-			return service.getState(itemState).then(state => {
+			return service.getState('torrent-id').then(state => {
 				expect(state).to.equal('finished');
 			});
 		});
 
 		it('returns "stalled" when the torrent is stalled', () => {
 			torrentStateResult.arguments.torrents[0].isStalled = true;
-			return service.getState(itemState).then(state => {
+			return service.getState('torrent-id').then(state => {
 				expect(state).to.equal('stalled');
 			});
 		});
 
 		it('returns "downloading" when the torrent is downloading', () => {
-			return service.getState(itemState).then(state => {
+			return service.getState('torrent-id').then(state => {
 				expect(state).to.equal('downloading');
 			});
 		});
 
 		it('returns "removed" when the torrent is removed', () => {
 			torrentStateResult.arguments.torrents = [];
-			return service.getState(itemState).then(state => {
+			return service.getState('torrent-id').then(state => {
 				expect(state).to.equal('removed');
 			});
 		});

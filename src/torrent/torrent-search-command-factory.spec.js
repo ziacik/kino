@@ -9,6 +9,7 @@ describe('TorrentSearchCommandFactory', () => {
 	let factory;
 	let item;
 	let torrentSearchService;
+	let downloadCommandFactory;
 
 	beforeEach(() => {
 		item = {
@@ -16,7 +17,8 @@ describe('TorrentSearchCommandFactory', () => {
 			some: 'item'
 		};
 		torrentSearchService = {};
-		factory = new TorrentSearchCommandFactory(torrentSearchService);
+		downloadCommandFactory = {};
+		factory = new TorrentSearchCommandFactory(torrentSearchService, downloadCommandFactory);
 	});
 
 	describe('#create', () => {
@@ -24,6 +26,7 @@ describe('TorrentSearchCommandFactory', () => {
 			let command = factory.create(item);
 			expect(command).to.be.an.instanceof(TorrentSearchCommand);
 			expect(command.torrentSearchService).to.equal(torrentSearchService);
+			expect(command.downloadCommandFactory).to.equal(downloadCommandFactory);
 			expect(command.item).to.equal(item);
 		});
 	});
