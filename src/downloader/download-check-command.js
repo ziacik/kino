@@ -14,6 +14,7 @@ class DownloadCheckCommand {
 	_createNextCommand(forState) {
 		switch (forState) {
 		case 'downloading':
+		case 'stalled':
 			return this.downloadCheckCommandFactory.create(this.item, this.torrentId);
 		}
 	}

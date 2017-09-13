@@ -16,7 +16,9 @@ describe('DownloadCheckCommand', () => {
 		downloadService = {
 			getState: sinon.stub().resolves('some state')
 		};
-		nextDownloadCheckCommand = {};
+		nextDownloadCheckCommand = {
+			next: 'command'
+		};
 		downloadCheckCommandFactory = {
 			create: sinon.stub().returns(nextDownloadCheckCommand)
 		};
@@ -32,6 +34,14 @@ describe('DownloadCheckCommand', () => {
 
 		it('returns another download check command if the state is "downloading"', () => {
 			downloadService.getState.resolves('downloading');
+			return command.execute().then(nextCommand => {
+				expect(nextCommand).to.equal(nextDownloadCheckCommand);
+				expect(downloadCheckCommandFactory.create).to.have.been.calledWith(item, 'torrent-id');
+			});
+		});
+
+		it('returns another download check command if the state is "stalled"', () => {
+			downloadService.getState.resolves('stalled');
 			return command.execute().then(nextCommand => {
 				expect(nextCommand).to.equal(nextDownloadCheckCommand);
 				expect(downloadCheckCommandFactory.create).to.have.been.calledWith(item, 'torrent-id');
