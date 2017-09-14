@@ -7,10 +7,13 @@ const TorrentSearchCommand = require('./torrent-search-command');
 
 describe('TorrentSearchCommand', () => {
 	let command;
+	let torrentSearchCommand;
+	let torrentSearchCommandFactory;
 	let item;
 	let torrentSearchService;
-	let downloadCommandFactory;
+	let scoringService;
 	let downloadCommand;
+	let downloadCommandFactory;
 
 	beforeEach(() => {
 		item = {
@@ -20,15 +23,32 @@ describe('TorrentSearchCommand', () => {
 		torrentSearchService = {
 			search: sinon.stub().resolves({
 				torrents: [
-					'torrent search result'
+					'torrent 1',
+					'torrent 2'
 				]
 			})
 		};
-		downloadCommand = {};
-		downloadCommandFactory = {
-			create: sinon.stub().resolves(downloadCommand)
+		scoringService = {
+			score: sinon.stub()
 		};
-		command = new TorrentSearchCommand(item, torrentSearchService, downloadCommandFactory);
+
+		scoringService.score.withArgs(item, 'torrent 1').resolves(1);
+		scoringService.score.withArgs(item, 'torrent 2').resolves(1.5);
+
+		downloadCommand = {
+			command: 'download'
+		};
+		downloadCommandFactory = {
+			create: sinon.stub().returns(downloadCommand)
+		};
+		torrentSearchCommand = {
+			command: 'search'
+		};
+		torrentSearchCommandFactory = {
+			create: sinon.stub().returns(torrentSearchCommand)
+		};
+
+		command = new TorrentSearchCommand(item, torrentSearchService, scoringService, torrentSearchCommandFactory, downloadCommandFactory);
 	});
 
 	describe('#execute', () => {
@@ -38,10 +58,28 @@ describe('TorrentSearchCommand', () => {
 			});
 		});
 
-		it('returns a download command as next command initialized with best torrent match', () => {
+		it('applies a scoring service on each result from torrent search service', () => {
+			return command.execute().then(() => {
+				expect(scoringService.score).to.have.been.calledWith(item, 'torrent 1');
+				expect(scoringService.score).to.have.been.calledWith(item, 'torrent 2');
+			});
+		});
+
+		it('returns a download command as next command initialized with highest score torrent match', () => {
 			return command.execute().then(nextCommand => {
 				expect(nextCommand).to.equal(downloadCommand);
-				expect(downloadCommandFactory.create).to.have.been.calledWith(item, 'torrent search result');
+				expect(downloadCommandFactory.create).to.have.been.calledWith(item, 'torrent 2');
+			});
+		});
+
+		it('returns a postponed torrent search command if none of the results has been scored more than 0', () => {
+			scoringService.score.withArgs(item, 'torrent 1').resolves(0);
+			scoringService.score.withArgs(item, 'torrent 2').resolves(0);
+
+			return command.execute().then(nextCommand => {
+				expect(nextCommand).to.equal(torrentSearchCommand);
+				expect(nextCommand.delay).to.equal(24 * 60 * 60 * 1000);
+				expect(torrentSearchCommandFactory.create).to.have.been.calledWith(item);
 			});
 		});
 	});
