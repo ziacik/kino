@@ -5,6 +5,7 @@ class CommandManager {
 		this.firstCommandFactory = firstCommandFactory;
 		this.commandQueue.on('done', (command, nextCommand) => this._commandDone(command, nextCommand));
 		this.commandQueue.on('error', (command, e) => this._commandFailed(command, e));
+		this.logger.register(this);
 	}
 
 	add(item, currentCommand) {

@@ -2,6 +2,7 @@ class TorrentSearchService {
 	constructor(logger, ...engines) {
 		this.logger = logger;
 		this.engines = engines;
+		this.logger.register(this);
 	}
 
 	search(item) {

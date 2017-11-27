@@ -3,6 +3,8 @@ class ItemStateController {
 		this.itemStateFactory = itemStateFactory;
 		this.store = store;
 		this.itemStore = itemStore;
+		this.logger = logger;
+		this.logger.register(this);
 	}
 
 	setupRoutes(server) {

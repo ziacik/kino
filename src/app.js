@@ -5,6 +5,7 @@ class App {
 		this.restifyPlugins = restifyPlugins;
 		this.restifyCors = restifyCors;
 		this.controllers = controllers;
+		this.logger.register(this);
 	}
 
 	run() {

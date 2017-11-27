@@ -4,6 +4,7 @@ class TpbEngine {
 	constructor(logger, lib) {
 		this.logger = logger;
 		this.lib = lib;
+		this.logger.register(this);
 	}
 
 	search(item) {

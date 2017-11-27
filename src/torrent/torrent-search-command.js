@@ -1,6 +1,7 @@
 class TorrentSearchCommand {
-	constructor(item, torrentSearchService, scoringService, torrentSearchCommandFactory, downloadCommandFactory) {
+	constructor(item, logger, torrentSearchService, scoringService, torrentSearchCommandFactory, downloadCommandFactory) {
 		this.item = item;
+		this.logger = logger;
 		this.torrentSearchService = torrentSearchService;
 		this.scoringService = scoringService;
 		this.torrentSearchCommandFactory = torrentSearchCommandFactory;
@@ -14,6 +15,8 @@ class TorrentSearchCommand {
 	}
 
 	_createNextCommand(forTorrent) {
+		this.logger.log('Done searching, have?', forTorrent);
+
 		if (forTorrent) {
 			return this.downloadCommandFactory.create(this.item, forTorrent);
 		} else {
@@ -24,6 +27,8 @@ class TorrentSearchCommand {
 	}
 
 	_selectBestTorrent(searchResult) {
+		this.logger.log('Gonna select best from', searchResult);
+
 		let scorePromises = searchResult.torrents.map(torrent => {
 			return this.scoringService.score(this.item, torrent).then(score => ({
 				score: score,
@@ -35,9 +40,11 @@ class TorrentSearchCommand {
 	}
 
 	_getBestScored(scoredTorrents) {
+		this.logger.log('Scored', scoredTorrents);
 		let best = scoredTorrents.filter(it => it.score > 0).sort((one, two) => {
 			return two.score - one.score;
 		});
+		this.logger.log('Best', best);
 		return best[0] && best[0].torrent;
 	}
 }

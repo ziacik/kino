@@ -5,12 +5,15 @@ class CommandQueue extends EventEmitter {
 		super();
 		this.logger = logger;
 		this.commands = [];
+		this.logger.register(this);
 	}
 
 	add(command, postponeMillis) {
+		this.logger.log('Adding', command);
 		if (postponeMillis) {
 			let now = Date.now();
 			command.postponedUntil = new Date(now + postponeMillis);
+			this.logger.log('Postponed until', command.postponedUntil);
 		}
 
 		this._process(command);
@@ -56,6 +59,8 @@ class CommandQueue extends EventEmitter {
 			this.timeout = setTimeout(() => this._execute(command), command.postponedUntil - now);
 			return;
 		}
+
+		console.log('Executing', command);
 
 		/// The command should execute immediately.
 		this._execute(command);
