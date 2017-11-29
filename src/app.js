@@ -31,7 +31,7 @@ class App {
 
 		server.listen(1337, () => {
 			this.setupRoutes(server);
-			this.logger.log(`Server is listening on port 1337`);
+			this.logger.info(this, 'Server has been started on port 1337');
 		});
 	}
 

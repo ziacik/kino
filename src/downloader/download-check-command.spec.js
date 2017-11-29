@@ -13,6 +13,9 @@ describe('DownloadCheckCommand', () => {
 	let nextDownloadCheckCommand;
 
 	beforeEach(() => {
+		item = {
+			toString: () => 'an item'
+		};
 		downloadService = {
 			getState: sinon.stub().resolves('some state')
 		};
@@ -46,6 +49,12 @@ describe('DownloadCheckCommand', () => {
 				expect(nextCommand).to.equal(nextDownloadCheckCommand);
 				expect(downloadCheckCommandFactory.create).to.have.been.calledWith(item, 'torrent-id');
 			});
+		});
+	});
+
+	describe('toString', () => {
+		it('returns meaningful command info', () => {
+			expect(command.toString()).to.equal('Check download of an item');
 		});
 	});
 });

@@ -5,6 +5,7 @@ chai.use(require('sinon-chai'));
 
 const test = require('../test');
 const ItemController = require('./item-controller');
+const Item = require('./item');
 
 describe('ItemController', () => {
 	let controller;
@@ -90,7 +91,11 @@ describe('ItemController', () => {
 
 		it('registers the inserted item to command manager', () => {
 			return controller.add(req, res, next).then(() => {
-				expect(commandManager.add).to.have.been.calledWith(insertedItem);
+				expect(commandManager.add).to.have.been.called;
+				let addArg = commandManager.add.firstCall.args[0];
+				expect(addArg).to.be.an.instanceOf(Item);
+				expect(addArg._id).to.equal(insertedItem._id);
+				expect(addArg.some).to.equal(insertedItem.some);
 			});
 		});
 	});

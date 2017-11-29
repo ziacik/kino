@@ -1,3 +1,5 @@
+const Item = require('./item');
+
 class ItemController {
 	constructor(util, store, commandManager) {
 		this.util = util;
@@ -19,8 +21,9 @@ class ItemController {
 
 	add(req, res, next) {
 		return this.store.insert(req.body).then(inserted => {
+			let item = new Item(inserted);
 			res.send(201);
-			this.commandManager.add(inserted);
+			this.commandManager.add(item);
 			next();
 		}).catch(err => this.util.handleError(err, next));
 	}

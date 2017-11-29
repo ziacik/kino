@@ -15,6 +15,7 @@ describe('CommandQueue', () => {
 
 	beforeEach(() => {
 		logger = {
+			info: sinon.stub(),
 			error: sinon.stub()
 		};
 		nextCommand = {
@@ -48,6 +49,25 @@ describe('CommandQueue', () => {
 		return test.postponed(110, () => {
 			expect(command.execute).to.have.been.called;
 		});
+	});
+
+	it('logs info about added immediate command', () => {
+		queue.add(command);
+		expect(logger.info).to.have.been.calledWith(queue, 'Command', command, 'has been added for immediate execution');
+	});
+
+	it('logs info about executing the command', () => {
+		queue.add(command, 100);
+		expect(logger.info).not.to.have.been.calledWith(queue, 'Command', command, 'execution starting');
+		return test.postponed(110, () => {
+			expect(command.execute).to.have.been.called;
+			expect(logger.info).to.have.been.calledWith(queue, 'Command', command, 'execution starting');
+		});
+	});
+
+	it('logs info about added postponed command', () => {
+		queue.add(command, 100);
+		expect(logger.info).to.have.been.calledWith(queue, 'Command', command, 'has been added for execution postponed until', sinon.match.date);
 	});
 
 	it('when immediate command is added after postponed command, the immediate one runs immediately', () => {

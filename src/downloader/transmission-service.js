@@ -9,8 +9,10 @@ class TransmissionService {
 	download(torrent) {
 		return this.client.torrentAdd({
 			filename: torrent.magnetLink
+		}).then(() => {
+			this.logger.info(this, 'Torrent', torrent, 'has been added');
 		}).catch(err => {
-			this.logger.error(err);
+			this.logger.error(this, 'Adding a torrent', torrent, 'failed with', err);
 			throw err;
 		});
 	}
@@ -36,7 +38,7 @@ class TransmissionService {
 
 			return 'downloading';
 		}).catch(err => {
-			this.logger.error(err);
+			this.logger.error(this, 'Requesting state of the torrent', torrentId, 'failed with', err);
 			throw err;
 		});
 	}

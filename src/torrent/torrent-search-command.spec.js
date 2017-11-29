@@ -18,7 +18,8 @@ describe('TorrentSearchCommand', () => {
 	beforeEach(() => {
 		item = {
 			_id: 'item-id',
-			some: 'item'
+			some: 'item',
+			toString: () => 'an item'
 		};
 		torrentSearchService = {
 			search: sinon.stub().resolves({
@@ -81,6 +82,12 @@ describe('TorrentSearchCommand', () => {
 				expect(nextCommand.delay).to.equal(24 * 60 * 60 * 1000);
 				expect(torrentSearchCommandFactory.create).to.have.been.calledWith(item);
 			});
+		});
+	});
+
+	describe('toString', () => {
+		it('returns meaningful command info', () => {
+			expect(command.toString()).to.equal('Search for a torrent for an item');
 		});
 	});
 });

@@ -11,6 +11,10 @@ class DownloadCheckCommand {
 		return this.downloadService.getState(this.torrentId).then(state => this._createNextCommand(state));
 	}
 
+	toString() {
+		return `Check download of ${this.item}`;
+	}
+
 	_createNextCommand(forState) {
 		switch (forState) {
 		case 'downloading':

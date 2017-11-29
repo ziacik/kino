@@ -18,6 +18,7 @@ describe('CommandManager', () => {
 
 	beforeEach(() => {
 		logger = {
+			info: sinon.stub(),
 			error: sinon.stub()
 		};
 		item = {
@@ -28,8 +29,14 @@ describe('CommandManager', () => {
 			add: sinon.stub(),
 			on: (eventName, callback) => subscriptions[eventName] = callback
 		};
-		firstCommand = { first: 'command' };
-		nextCommand = { next: 'command', delay: 1234 };
+		firstCommand = {
+			first: 'command',
+			toString: () => 'First Command'
+		};
+		nextCommand = {
+			next: 'command',
+			delay: 1234
+		};
 		firstCommandFactory = {
 			create: sinon.stub().returns(firstCommand)
 		};
@@ -68,6 +75,18 @@ describe('CommandManager', () => {
 			subscriptions.done(nextCommand);
 			expect(queue.add).not.to.have.been.called;
 		});
+
+		it('logs info with next command', () => {
+			manager.add(item, firstCommand);
+			subscriptions.done(firstCommand, nextCommand);
+			expect(logger.info).to.have.been.calledWith(manager, 'Command', firstCommand, 'finished successfully, continuing with next command');
+		});
+
+		it('logs info with no next command', () => {
+			manager.add(item, firstCommand);
+			subscriptions.done(firstCommand);
+			expect(logger.info).to.have.been.calledWith(manager, 'Command', firstCommand, 'finished successfully, no next command');
+		});
 	});
 
 	describe('when the command fails', () => {
@@ -75,7 +94,7 @@ describe('CommandManager', () => {
 			manager.add(item, firstCommand);
 			queue.add.reset();
 			subscriptions.error(firstCommand, test.error);
-			expect(logger.error).to.have.been.calledWith(test.error);
+			expect(logger.error).to.have.been.calledWith(manager, 'Command', firstCommand, 'failed with error', test.error);
 			expect(queue.add).not.to.have.been.called;
 		});
 	});

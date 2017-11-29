@@ -1,8 +1,20 @@
 class SeasonScorer {
-	constructor() {
+	constructor(logger) {
+		this.logger = logger;
 	}
 
 	score(item, torrent) {
+		return this._doScore(item, torrent).then(result => {
+			this.logger.debug(this, 'Scoring result for torrent', torrent, 'for', item, 'is', result);
+			return result;
+		});
+	}
+
+	toString() {
+		return 'Season Scorer';
+	}
+
+	_doScore(item, torrent) {
 		let allowedPattern = new RegExp(`\\bS(eason)?\\s*0?${item.no}\\b`, 'i');
 		if (!allowedPattern.test(torrent.name)) {
 			return Promise.resolve(0);
@@ -19,4 +31,4 @@ class SeasonScorer {
 
 module.exports = SeasonScorer;
 module.exports['@singleton'] = true;
-module.exports['require'] = [];
+module.exports['@require'] = ['../../logger'];

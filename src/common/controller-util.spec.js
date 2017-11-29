@@ -31,7 +31,7 @@ describe('ControllerUtil', () => {
 		});
 
 		it('logs the error', () => {
-			expect(logger.error).to.have.been.calledWith(error);
+			expect(logger.error).to.have.been.calledWith(util, 'Controller method failed with', error);
 		});
 
 		it('calls next() with a generic internal server error', () => {

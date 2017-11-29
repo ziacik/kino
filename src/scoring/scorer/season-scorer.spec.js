@@ -1,5 +1,6 @@
 const chai = require('chai');
 const expect = chai.expect;
+const sinon = require('sinon');
 chai.use(require('sinon-chai'));
 
 const SeasonScorer = require('./season-scorer');
@@ -8,8 +9,12 @@ describe('SeasonScorer', () => {
 	let scorer;
 	let item;
 	let torrent;
+	let logger;
 
 	beforeEach(() => {
+		logger = {
+			debug: sinon.stub()
+		};
 		item = {
 			type: 'season',
 			no: 1,
@@ -19,10 +24,18 @@ describe('SeasonScorer', () => {
 			some: 'torrent',
 			name: 'Whatever Season 1'
 		};
-		scorer = new SeasonScorer();
+		scorer = new SeasonScorer(logger);
 	});
 
 	describe('#score', () => {
+		it('logs debug with result of scoring', () => {
+			item.type = 'movie';
+			torrent.name = 'Whatever Season 1';
+			return scorer.score(item, torrent).then(result => {
+				expect(logger.debug).to.have.been.calledWith(scorer, 'Scoring result for torrent', torrent, 'for', item, 'is', result);
+			});
+		});
+
 		describe('with item type other than "season"', () => {
 			it('resolves with 1', () => {
 				item.type = 'movie';
@@ -81,6 +94,12 @@ describe('SeasonScorer', () => {
 				torrent.name = 'Whatever S01';
 				return scorer.score(item, torrent).then(result => expect(result).not.to.equal(0));
 			});
+		});
+	});
+
+	describe('toString', () => {
+		it('returns meaningful info', () => {
+			expect(scorer.toString()).to.equal('Season Scorer');
 		});
 	});
 });

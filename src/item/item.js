@@ -24,6 +24,10 @@ class Item extends Model {
 	static get timestamps() {
 		return true;
 	}
+
+	toString() {
+		return `${this.type} ${this.name}`;
+	}
 }
 
 module.exports = Item;

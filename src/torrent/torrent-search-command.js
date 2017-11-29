@@ -13,6 +13,10 @@ class TorrentSearchCommand {
 			.then(torrent => this._createNextCommand(torrent));
 	}
 
+	toString() {
+		return `Search for a torrent for ${this.item}`;
+	}
+
 	_createNextCommand(forTorrent) {
 		if (forTorrent) {
 			return this.downloadCommandFactory.create(this.item, forTorrent);

@@ -16,7 +16,8 @@ describe('DownloadCommand', () => {
 	beforeEach(() => {
 		item = {
 			_id: 'item-id',
-			some: 'item'
+			some: 'item',
+			toString: () => 'an item'
 		};
 		torrent = {
 			magnetLink: 'magnet:link'
@@ -43,6 +44,12 @@ describe('DownloadCommand', () => {
 				expect(downloadCheckCommandFactory.create).to.have.been.calledWith(item, 'torrent-id');
 				expect(result).to.equal(downloadCheckCommand);
 			});
+		});
+	});
+
+	describe('toString', () => {
+		it('returns meaningful command info', () => {
+			expect(command.toString()).to.equal('Download an item');
 		});
 	});
 });

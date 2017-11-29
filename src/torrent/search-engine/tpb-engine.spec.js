@@ -16,6 +16,7 @@ describe('TpbEngine', () => {
 
 	beforeEach(() => {
 		logger = {
+			info: sinon.stub(),
 			error: sinon.stub()
 		};
 		item = {
@@ -52,7 +53,7 @@ describe('TpbEngine', () => {
 			throw new Error('Should not resolve.');
 		}).catch(e => {
 			expect(e).to.equal(test.error);
-			expect(logger.error).to.have.been.calledWith(test.error);
+			expect(logger.error).to.have.been.calledWith(engine, 'Search for torrents for', item, 'failed with', test.error);
 		});
 	});
 
@@ -73,6 +74,12 @@ describe('TpbEngine', () => {
 		});
 	});
 
+	it('logs info about the number of torrents found', () => {
+		return engine.search(item).then(torrents => {
+			expect(logger.info).to.have.been.calledWith(engine, torrents.length, 'torrents found for', item);
+		});
+	});
+
 	describe('for movie item', () => {
 		beforeEach(() => {
 			item.type = 'movie';
@@ -82,6 +89,12 @@ describe('TpbEngine', () => {
 			return engine.search(item).then(() => {
 				expect(lib.search).to.have.been.calledWith('item-name');
 			});
+		});
+	});
+
+	describe('toString', () => {
+		it('returns meaningful info', () => {
+			expect(engine.toString()).to.equal('ThePirateBay');
 		});
 	});
 });

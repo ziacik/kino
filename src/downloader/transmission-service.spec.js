@@ -23,6 +23,7 @@ describe('TransmissionService', () => {
 			}
 		};
 		logger = {
+			info: sinon.stub(),
 			error: sinon.stub()
 		};
 		torrent = {
@@ -45,13 +46,13 @@ describe('TransmissionService', () => {
 	});
 
 	describe('#download', () => {
-		it('logs an error in case of error rethrows', () => {
+		it('logs an error in case of error and rethrows', () => {
 			client.torrentAdd.rejects(test.error);
 			return service.download(torrent).then(() => {
 				throw new Error('Not expected to resolve');
 			}).catch(err => {
 				expect(err).to.equal(test.error);
-				expect(logger.error).to.have.been.calledWith(test.error);
+				expect(logger.error).to.have.been.calledWith(service, 'Adding a torrent', torrent, 'failed with', test.error);
 			});
 		});
 
@@ -60,6 +61,12 @@ describe('TransmissionService', () => {
 				expect(client.torrentAdd).to.have.been.calledWith({
 					filename: 'magnet-link'
 				});
+			});
+		});
+
+		it('logs info', () => {
+			return service.download(torrent).then(() => {
+				expect(logger.info).to.have.been.calledWith(service, 'Torrent', torrent, 'has been added');
 			});
 		});
 	});
@@ -71,7 +78,7 @@ describe('TransmissionService', () => {
 				throw new Error('Not expected to resolve');
 			}).catch(e => {
 				expect(e).to.equal(test.error);
-				expect(logger.error).to.have.been.calledWith(test.error);
+				expect(logger.error).to.have.been.calledWith(service, 'Requesting state of the torrent', 'torrent-id', 'failed with', test.error);
 			});
 		});
 

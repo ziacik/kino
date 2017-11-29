@@ -9,6 +9,10 @@ class DownloadCommand {
 	execute() {
 		return this.downloadService.download(this.torrent).then(torrentId => this.downloadCheckCommandFactory.create(this.item, torrentId));
 	}
+
+	toString() {
+		return `Download ${this.item}`;
+	}
 }
 
 module.exports = DownloadCommand;

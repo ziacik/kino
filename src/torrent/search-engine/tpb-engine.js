@@ -8,11 +8,16 @@ class TpbEngine {
 
 	search(item) {
 		return this.lib.search(item.name).catch(e => {
-			this.logger.error(e);
+			this.logger.error(this, 'Search for torrents for', item, 'failed with', e);
 			throw e;
 		}).then(results => {
+			this.logger.info(this, results.length, 'torrents found for', item);
 			return results.map(one => this._toTorrent(one));
 		});
+	}
+
+	toString() {
+		return 'ThePirateBay';
 	}
 
 	_toTorrent(result) {

@@ -30,7 +30,7 @@ describe('app', () => {
 			listen: sinon.stub().yields()
 		};
 		logger = {
-			log: sinon.stub()
+			info: sinon.stub()
 		};
 		restify = {
 			createServer: sinon.stub().returns(server)
@@ -82,8 +82,8 @@ describe('app', () => {
 			expect(controller.setupRoutes).to.have.been.calledWith(server);
 		});
 
-		it('logs about the successful start', () => {
-			expect(logger.log).to.have.been.calledWith(sinon.match('1337'));
+		it('logs info about the successful start', () => {
+			expect(logger.info).to.have.been.calledWith(app, 'Server has been started on port 1337');
 		});
 	});
 });

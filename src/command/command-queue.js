@@ -8,9 +8,16 @@ class CommandQueue extends EventEmitter {
 	}
 
 	add(command, postponeMillis) {
+		let now = Date.now();
+
 		if (postponeMillis) {
-			let now = Date.now();
 			command.postponedUntil = new Date(now + postponeMillis);
+		}
+
+		if (command.postponedUntil > now) {
+			this.logger.info(this, 'Command', command, 'has been added for execution postponed until', command.postponedUntil);
+		} else {
+			this.logger.info(this, 'Command', command, 'has been added for immediate execution');
 		}
 
 		this._process(command);
@@ -85,6 +92,7 @@ class CommandQueue extends EventEmitter {
 	}
 
 	_execute(command) {
+		this.logger.info(this, 'Command', command, 'execution starting');
 		this.executing = command;
 		this.nearestPlannedCommand = null;
 		command.execute().then(result => {

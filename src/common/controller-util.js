@@ -6,7 +6,7 @@ class ControllerUtil {
 	}
 
 	handleError(err, next) {
-		this.logger.error(err);
+		this.logger.error(this, 'Controller method failed with', err);
 		next(new this.errors.InternalServerError());
 	}
 

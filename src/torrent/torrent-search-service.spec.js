@@ -17,6 +17,7 @@ describe('TorrentSearchService', () => {
 
 	beforeEach(() => {
 		logger = {
+			warn: sinon.stub(),
 			error: sinon.stub()
 		};
 		item = {
@@ -65,9 +66,9 @@ describe('TorrentSearchService', () => {
 			});
 		});
 
-		it('logs the errors', () => {
+		it('logs the warning', () => {
 			return service.search(item).then(() => {
-				expect(logger.error).to.have.been.calledWith(test.error);
+				expect(logger.warn).to.have.been.calledWith(service, 'Search engine', engine1, 'failed when searching for', item);
 			});
 		});
 	});
