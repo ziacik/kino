@@ -42,15 +42,15 @@ describe('ItemController', () => {
 			find: sinon.stub().resolves([item]),
 			insert: sinon.stub().resolves(insertedItem)
 		};
-		controller = new ItemController(util, store, commandManager);
 		server = {
 			get: sinon.stub(),
 			post: sinon.stub()
 		};
+		controller = new ItemController(server, util, store, commandManager);
 	});
 
 	it('sets the routes up', () => {
-		controller.setupRoutes(server);
+		controller.run();
 		expect(server.get).to.have.been.calledWith('/items');
 		expect(server.post).to.have.been.calledWith('/items');
 	});

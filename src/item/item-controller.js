@@ -1,15 +1,16 @@
 const Item = require('./item');
 
 class ItemController {
-	constructor(util, store, commandManager) {
+	constructor(server, util, store, commandManager) {
+		this.server = server;
 		this.util = util;
 		this.store = store;
 		this.commandManager = commandManager;
 	}
 
-	setupRoutes(server) {
-		server.get('/items', this.find.bind(this));
-		server.post('/items', this.add.bind(this));
+	run() {
+		this.server.get('/items', this.find.bind(this));
+		this.server.post('/items', this.add.bind(this));
 	}
 
 	find(req, res, next) {
@@ -31,4 +32,4 @@ class ItemController {
 
 module.exports = ItemController;
 module.exports['@singleton'] = true;
-module.exports['@require'] = ['../common/controller-util', './item-store', '../command/command-manager'];
+module.exports['@require'] = ['../server', '../common/controller-util', './item-store', '../command/command-manager'];
