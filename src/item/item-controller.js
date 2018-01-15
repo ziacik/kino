@@ -22,9 +22,8 @@ class ItemController {
 
 	add(req, res, next) {
 		return this.store.insert(req.body).then(inserted => {
-			let item = new Item(inserted);
-			res.send(201);
-			this.commandManager.add(item);
+			res.send(201, inserted);
+			this.commandManager.add(inserted);
 			next();
 		}).catch(err => this.util.handleError(err, next));
 	}

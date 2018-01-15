@@ -44,7 +44,8 @@ describe('ItemStateUpdater', () => {
 				}
 			});
 			expect(args[2]).to.deep.equal({
-				returnUpdatedDocs: true
+				returnUpdatedDocs: true,
+				upsert: true
 			});
 		});
 	});

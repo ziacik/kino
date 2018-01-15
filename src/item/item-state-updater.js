@@ -14,7 +14,8 @@ class ItemStateUpdater {
 			}
 		};
 		const options = {
-			returnUpdatedDocs: true
+			returnUpdatedDocs: true,
+			upsert: true
 		};
 		return this.itemStateStore.update(query, setter, options)
 			.then(updatedItemState => this.itemStatePublisher.publish(updatedItemState));

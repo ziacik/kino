@@ -18,8 +18,8 @@ class ControllerUtil {
 	}
 
 	add(req, res, next) {
-		return this.store.insert(req.body).then(() => {
-			res.send(201);
+		return this.store.insert(req.body).then(inserted => {
+			res.send(201, inserted);
 			next();
 		}).catch(err => this.handleError(err, next));
 	}
