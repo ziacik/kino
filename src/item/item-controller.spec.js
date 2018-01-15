@@ -34,23 +34,23 @@ describe('ItemController', () => {
 		item = {
 			some: 'item'
 		};
-		insertedItem = {
+		insertedItem = new Item({
 			_id: 'item-id',
 			some: 'item'
-		};
+		});
 		store = {
 			find: sinon.stub().resolves([item]),
 			insert: sinon.stub().resolves(insertedItem)
 		};
-		controller = new ItemController(util, store, commandManager);
 		server = {
 			get: sinon.stub(),
 			post: sinon.stub()
 		};
+		controller = new ItemController(server, util, store, commandManager);
 	});
 
 	it('sets the routes up', () => {
-		controller.setupRoutes(server);
+		controller.run();
 		expect(server.get).to.have.been.calledWith('/items');
 		expect(server.post).to.have.been.calledWith('/items');
 	});
@@ -84,7 +84,7 @@ describe('ItemController', () => {
 		it('saves an item from the body', () => {
 			return controller.add(req, res, next).then(() => {
 				expect(store.insert).to.have.been.calledWith(item);
-				expect(res.send).to.have.been.calledWith(201);
+				expect(res.send).to.have.been.calledWith(201, insertedItem);
 				expect(next).to.have.been.called;
 			});
 		});

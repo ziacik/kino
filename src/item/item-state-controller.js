@@ -1,12 +1,13 @@
 class ItemStateController {
-	constructor(errors, logger, itemStateFactory, store, itemStore) {
+	constructor(server, errors, logger, itemStateFactory, store, itemStore) {
+		this.server = server;
 		this.itemStateFactory = itemStateFactory;
 		this.store = store;
 		this.itemStore = itemStore;
 	}
 
-	setupRoutes(server) {
-		server.get('/items/states', this.find.bind(this));
+	run() {
+		this.server.get('/items/states', this.find.bind(this));
 	}
 
 	find(req, res, next) {
@@ -29,4 +30,4 @@ class ItemStateController {
 
 module.exports = ItemStateController;
 module.exports['@singleton'] = true;
-module.exports['@require'] = ['restify-errors', '../logger', './item-state-factory', './item-state-store', './item-store'];
+module.exports['@require'] = ['../server', 'restify-errors', '../logger', './item-state-factory', './item-state-store', './item-store'];

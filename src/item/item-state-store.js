@@ -1,7 +1,7 @@
-const { Datastore } = require('nedb-models');
+const ExtendedDatastore = require('../common/extended-datastore');
 const ItemState = require('./item-state');
 
-class ItemStateStore extends Datastore {
+class ItemStateStore extends ExtendedDatastore {
 	constructor() {
 		super({
 			filename: './db/item.state.db',

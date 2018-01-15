@@ -1,6 +1,7 @@
 class TorrentSearchCommand {
-	constructor(item, torrentSearchService, scoringService, torrentSearchCommandFactory, downloadCommandFactory) {
+	constructor(item, itemStateUpdater, torrentSearchService, scoringService, torrentSearchCommandFactory, downloadCommandFactory) {
 		this.item = item;
+		this.itemStateUpdater = itemStateUpdater;
 		this.torrentSearchService = torrentSearchService;
 		this.scoringService = scoringService;
 		this.torrentSearchCommandFactory = torrentSearchCommandFactory;
@@ -8,7 +9,8 @@ class TorrentSearchCommand {
 	}
 
 	execute() {
-		return this.torrentSearchService.search(this.item)
+		return this.itemStateUpdater.update(this.item, 'searching')
+			.then(() => this.torrentSearchService.search(this.item))
 			.then(result => this._selectBestTorrent(result))
 			.then(torrent => this._createNextCommand(torrent));
 	}
@@ -19,11 +21,15 @@ class TorrentSearchCommand {
 
 	_createNextCommand(forTorrent) {
 		if (forTorrent) {
-			return this.downloadCommandFactory.create(this.item, forTorrent);
+			return this.itemStateUpdater.update(this.item, 'found').then(() =>
+				this.downloadCommandFactory.create(this.item, forTorrent)
+			);
 		} else {
-			let next = this.torrentSearchCommandFactory.create(this.item);
-			next.delay = 24 * 60 * 60 * 1000;
-			return next;
+			return this.itemStateUpdater.update(this.item, 'not-found').then(() => {
+				let next = this.torrentSearchCommandFactory.create(this.item);
+				next.delay = 24 * 60 * 60 * 1000;
+				return next;
+			});
 		}
 	}
 

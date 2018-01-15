@@ -33,12 +33,12 @@ describe('ItemStateController', () => {
 			get: sinon.stub(),
 			post: sinon.stub()
 		};
-		controller = new ItemStateController(test.errors, test.logger, itemStateFactory, itemStateStore, itemStore);
+		controller = new ItemStateController(server, test.errors, test.logger, itemStateFactory, itemStateStore, itemStore);
 		test.rethrowHandleError(controller);
 	});
 
 	it('sets the routes up', () => {
-		controller.setupRoutes(server);
+		controller.run();
 		expect(server.get).to.have.been.calledWith('/items/states');
 	});
 
