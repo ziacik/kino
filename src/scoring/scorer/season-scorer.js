@@ -15,6 +15,10 @@ class SeasonScorer {
 	}
 
 	_doScore(item, torrent) {
+		if (item.type !== 'season') {
+			return Promise.resolve(1);
+		}
+
 		let allowedPattern = new RegExp(`\\bS(eason)?\\s*0?${item.no}\\b`, 'i');
 		if (!allowedPattern.test(torrent.name)) {
 			return Promise.resolve(0);

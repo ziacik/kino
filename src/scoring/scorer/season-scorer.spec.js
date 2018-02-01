@@ -5,7 +5,7 @@ chai.use(require('sinon-chai'));
 
 const SeasonScorer = require('./season-scorer');
 
-describe('SeasonScorer', () => {
+describe.only('SeasonScorer', () => {
 	let scorer;
 	let item;
 	let torrent;
@@ -39,7 +39,7 @@ describe('SeasonScorer', () => {
 		describe('with item type other than "season"', () => {
 			it('resolves with 1', () => {
 				item.type = 'movie';
-				torrent.name = 'Whatever Season 1';
+				torrent.name = 'Whatever S01E01';
 				return scorer.score(item, torrent).then(result => expect(result).to.equal(1));
 			});
 		});
@@ -80,19 +80,19 @@ describe('SeasonScorer', () => {
 				return scorer.score(item, torrent).then(result => expect(result).to.equal(0));
 			});
 
-			it('resolves with non-zero if torrent name contains Season 1', () => {
+			it('resolves with 1 if torrent name contains Season 1', () => {
 				torrent.name = 'Whatever Season 1';
-				return scorer.score(item, torrent).then(result => expect(result).not.to.equal(0));
+				return scorer.score(item, torrent).then(result => expect(result).to.equal(1));
 			});
 
-			it('resolves with non-zero if torrent name contains Season 01', () => {
+			it('resolves with 1 if torrent name contains Season 01', () => {
 				torrent.name = 'Whatever Season 01';
-				return scorer.score(item, torrent).then(result => expect(result).not.to.equal(0));
+				return scorer.score(item, torrent).then(result => expect(result).to.equal(1));
 			});
 
-			it('resolves with non-zero if torrent name contains S01', () => {
+			it('resolves with 1 if torrent name contains S01', () => {
 				torrent.name = 'Whatever S01';
-				return scorer.score(item, torrent).then(result => expect(result).not.to.equal(0));
+				return scorer.score(item, torrent).then(result => expect(result).to.equal(1));
 			});
 		});
 	});
