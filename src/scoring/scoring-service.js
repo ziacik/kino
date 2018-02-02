@@ -24,4 +24,8 @@ class ScoringService {
 
 module.exports = ScoringService;
 module.exports['@singleton'] = true;
-module.exports['@require'] = ['../logger', './scorer/season-scorer'];
+module.exports['@require'] = [
+	'../logger',
+	'./scorer/season-scorer',
+	'./scorer/seeds-scorer'
+];

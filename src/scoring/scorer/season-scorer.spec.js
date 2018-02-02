@@ -5,7 +5,7 @@ chai.use(require('sinon-chai'));
 
 const SeasonScorer = require('./season-scorer');
 
-describe.only('SeasonScorer', () => {
+describe('SeasonScorer', () => {
 	let scorer;
 	let item;
 	let torrent;
