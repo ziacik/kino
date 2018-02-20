@@ -10,6 +10,7 @@ describe('TorrentSearchCommandFactory', () => {
 	let item;
 	let itemStateUpdater;
 	let torrentSearchService;
+	let filteringService;
 	let scoringService;
 	let downloadCommandFactory;
 
@@ -20,9 +21,10 @@ describe('TorrentSearchCommandFactory', () => {
 		};
 		itemStateUpdater = {};
 		torrentSearchService = {};
+		filteringService = {};
 		scoringService = {};
 		downloadCommandFactory = {};
-		factory = new TorrentSearchCommandFactory(itemStateUpdater, torrentSearchService, scoringService, downloadCommandFactory);
+		factory = new TorrentSearchCommandFactory(itemStateUpdater, torrentSearchService, filteringService, scoringService, downloadCommandFactory);
 	});
 
 	describe('#create', () => {
@@ -31,6 +33,7 @@ describe('TorrentSearchCommandFactory', () => {
 			expect(command).to.be.an.instanceof(TorrentSearchCommand);
 			expect(command.itemStateUpdater).to.equal(itemStateUpdater);
 			expect(command.torrentSearchService).to.equal(torrentSearchService);
+			expect(command.filteringService).to.equal(filteringService);
 			expect(command.scoringService).to.equal(scoringService);
 			expect(command.torrentSearchCommandFactory).to.equal(factory);
 			expect(command.downloadCommandFactory).to.equal(downloadCommandFactory);

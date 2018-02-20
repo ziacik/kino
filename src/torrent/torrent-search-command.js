@@ -1,18 +1,27 @@
 class TorrentSearchCommand {
-	constructor(item, itemStateUpdater, torrentSearchService, scoringService, torrentSearchCommandFactory, downloadCommandFactory) {
+	constructor(item, itemStateUpdater, torrentSearchService, filteringService, scoringService, torrentSearchCommandFactory, downloadCommandFactory) {
+		this.maxRetryCount = 3;
 		this.item = item;
 		this.itemStateUpdater = itemStateUpdater;
 		this.torrentSearchService = torrentSearchService;
+		this.filteringService = filteringService;
 		this.scoringService = scoringService;
 		this.torrentSearchCommandFactory = torrentSearchCommandFactory;
 		this.downloadCommandFactory = downloadCommandFactory;
 	}
 
-	execute() {
-		return this.itemStateUpdater.update(this.item, 'searching')
-			.then(() => this.torrentSearchService.search(this.item))
-			.then(result => this._selectBestTorrent(result))
-			.then(torrent => this._createNextCommand(torrent));
+	async execute() {
+		await this.itemStateUpdater.update(this.item, 'searching');
+
+		try {
+			const searchResult = await this.torrentSearchService.search(this.item);
+			const filteredTorrents = await this.filteringService.filter(this.item, searchResult.torrents);
+			const bestTorrent = await this.scoringService.score(this.item, filteredTorrents);
+			return this._createNextCommand(bestTorrent);
+		} catch(e) {
+			await this.itemStateUpdater.update(this.item, 'error');
+			throw e;
+		}
 	}
 
 	toString() {
@@ -31,24 +40,6 @@ class TorrentSearchCommand {
 				return next;
 			});
 		}
-	}
-
-	_selectBestTorrent(searchResult) {
-		let scorePromises = searchResult.torrents.map(torrent => {
-			return this.scoringService.score(this.item, torrent).then(score => ({
-				score: score,
-				torrent: torrent
-			}));
-		});
-
-		return Promise.all(scorePromises).then(scoredTorrents => this._getBestScored(scoredTorrents));
-	}
-
-	_getBestScored(scoredTorrents) {
-		let best = scoredTorrents.filter(it => it.score > 0).sort((one, two) => {
-			return two.score - one.score;
-		});
-		return best[0] && best[0].torrent;
 	}
 }
 

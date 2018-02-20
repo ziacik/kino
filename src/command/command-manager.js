@@ -1,14 +1,18 @@
 class CommandManager {
-	constructor(logger, commandQueue, firstCommandFactory) {
+	constructor(logger, commandQueue, itemStateUpdater, firstCommandFactory) {
 		this.logger = logger;
 		this.commandQueue = commandQueue;
+		this.itemStateUpdater = itemStateUpdater;
 		this.firstCommandFactory = firstCommandFactory;
 		this.commandQueue.on('done', (command, nextCommand) => this._commandDone(command, nextCommand));
 		this.commandQueue.on('error', (command, e) => this._commandFailed(command, e));
 	}
 
-	add(item, currentCommand) {
-		let command = currentCommand || this.firstCommandFactory.create(item);
+	async add(item, currentCommand) {
+		if (!currentCommand) {
+			await this.itemStateUpdater.update(item, 'enqueued');
+		}
+		const command = currentCommand || this.firstCommandFactory.create(item);
 		this.commandQueue.add(command, command.delay);
 	}
 
@@ -31,4 +35,4 @@ class CommandManager {
 
 module.exports = CommandManager;
 module.exports['@singleton'] = true;
-module.exports['@require'] = ['../logger', './command-queue', '../torrent/torrent-search-command-factory'];
+module.exports['@require'] = ['../logger', './command-queue', '../item/item-state-updater', '../torrent/torrent-search-command-factory'];

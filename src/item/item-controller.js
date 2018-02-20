@@ -1,5 +1,3 @@
-const Item = require('./item');
-
 class ItemController {
 	constructor(server, util, store, commandManager) {
 		this.server = server;
@@ -20,12 +18,15 @@ class ItemController {
 		}).catch(err => this.util.handleError(err, next));
 	}
 
-	add(req, res, next) {
-		return this.store.insert(req.body).then(inserted => {
+	async add(req, res, next) {
+		try {
+			const inserted = await this.store.insert(req.body);
 			res.send(201, inserted);
-			this.commandManager.add(inserted);
+			await this.commandManager.add(inserted);
 			next();
-		}).catch(err => this.util.handleError(err, next));
+		} catch(err) {
+			this.util.handleError(err, next);
+		}
 	}
 }
 

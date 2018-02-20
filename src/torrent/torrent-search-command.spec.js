@@ -5,12 +5,19 @@ chai.use(require('sinon-chai'));
 
 const TorrentSearchCommand = require('./torrent-search-command');
 
+// TODO handle "state" from torrent search service
+
 describe('TorrentSearchCommand', () => {
 	let command;
 	let torrentSearchCommand;
 	let torrentSearchCommandFactory;
 	let item;
+	let torrent1;
+	let torrent2;
+	let torrent3;
+	let torrents;
 	let torrentSearchService;
+	let filteringService;
 	let scoringService;
 	let downloadCommand;
 	let downloadCommandFactory;
@@ -25,20 +32,25 @@ describe('TorrentSearchCommand', () => {
 		itemStateUpdater = {
 			update: sinon.stub().resolves()
 		};
+		torrent1 = { id : 1 };
+		torrent2 = { id : 2 };
+		torrent3 = { id : 3 };
+		torrents = [ torrent1, torrent2, torrent3 ];
 		torrentSearchService = {
 			search: sinon.stub().resolves({
-				torrents: [
-					'torrent 1',
-					'torrent 2'
-				]
+				torrents: torrents
 			})
+		};
+
+		filteringService = {
+			filter: sinon.stub().resolves([torrent1, torrent2])
 		};
 		scoringService = {
 			score: sinon.stub()
 		};
 
-		scoringService.score.withArgs(item, 'torrent 1').resolves(1);
-		scoringService.score.withArgs(item, 'torrent 2').resolves(1.5);
+		scoringService.score.withArgs(item, [torrent1, torrent2]).resolves(torrent2);
+		scoringService.score.withArgs(item, []).resolves(undefined);
 
 		downloadCommand = {
 			command: 'download'
@@ -53,10 +65,10 @@ describe('TorrentSearchCommand', () => {
 			create: sinon.stub().returns(torrentSearchCommand)
 		};
 
-		command = new TorrentSearchCommand(item, itemStateUpdater, torrentSearchService, scoringService, torrentSearchCommandFactory, downloadCommandFactory);
+		command = new TorrentSearchCommand(item, itemStateUpdater, torrentSearchService, filteringService, scoringService, torrentSearchCommandFactory, downloadCommandFactory);
 	});
 
-	describe('#execute', () => {
+	describe('execute', () => {
 		it('updates the item state to "searching"', () => {
 			return command.execute().then(() => {
 				expect(itemStateUpdater.update).to.have.been.calledWith(item, 'searching');
@@ -79,21 +91,37 @@ describe('TorrentSearchCommand', () => {
 			});
 		});
 
-		it('applies a scoring service on each result from torrent search service', () => {
+		it('applies a filtering service on results from torrent search service', () => {
 			return command.execute().then(() => {
-				expect(scoringService.score).to.have.been.calledWith(item, 'torrent 1');
-				expect(scoringService.score).to.have.been.calledWith(item, 'torrent 2');
+				expect(filteringService.filter).to.have.been.calledWith(item, [torrent1, torrent2, torrent3]);
 			});
 		});
 
-		it('returns a download command as next command initialized with highest score torrent match', () => {
+		it('applies a scoring service on results from filtering service', () => {
+			return command.execute().then(() => {
+				expect(scoringService.score).to.have.been.calledWith(item, [torrent1, torrent2]);
+			});
+		});
+
+		it('returns a download command as next command initialized with the result from scoring service', () => {
 			return command.execute().then(nextCommand => {
 				expect(nextCommand).to.equal(downloadCommand);
-				expect(downloadCommandFactory.create).to.have.been.calledWith(item, 'torrent 2');
+				expect(downloadCommandFactory.create).to.have.been.calledWith(item, torrent2);
 			});
 		});
 
-		it('updates the item state to "found" when a torrent has been found with score higher than 0', () => {
+		it('updates the item state to "error" if the command fails unexpectedly and rethrows the error', () => {
+			const error = new Error('Some error');
+			torrentSearchService.search.rejects(error);
+			return command.execute().then(() => {
+				throw new Error('Expected not to resolve');
+			}).catch(e => {
+				expect(e).to.equal(error);
+				expect(itemStateUpdater.update).to.have.been.calledWith(item, 'error');
+			});
+		});
+
+		it('updates the item state to "found" when a torrent has been found which has not been filtered out', () => {
 			return command.execute().then(() => {
 				expect(itemStateUpdater.update).to.have.been.calledWith(item, 'found');
 			});
@@ -109,9 +137,8 @@ describe('TorrentSearchCommand', () => {
 			});
 		});
 
-		it('returns a postponed torrent search command if none of the results has been scored more than 0', () => {
-			scoringService.score.withArgs(item, 'torrent 1').resolves(0);
-			scoringService.score.withArgs(item, 'torrent 2').resolves(0);
+		it('returns a postponed torrent search command if all results have been filtered out', () => {
+			filteringService.filter.resolves([]);
 
 			return command.execute().then(nextCommand => {
 				expect(nextCommand).to.equal(torrentSearchCommand);
@@ -121,8 +148,7 @@ describe('TorrentSearchCommand', () => {
 		});
 
 		it('updates the item state to "not-found" when no torrent has been found with score higher than 0', () => {
-			scoringService.score.withArgs(item, 'torrent 1').resolves(0);
-			scoringService.score.withArgs(item, 'torrent 2').resolves(0);
+			filteringService.filter.resolves([]);
 
 			return command.execute().then(() => {
 				expect(itemStateUpdater.update).to.have.been.calledWith(item, 'not-found');
@@ -130,8 +156,7 @@ describe('TorrentSearchCommand', () => {
 		});
 
 		it('fails when "not-found" item state update fails', () => {
-			scoringService.score.withArgs(item, 'torrent 1').resolves(0);
-			scoringService.score.withArgs(item, 'torrent 2').resolves(0);
+			filteringService.filter.resolves([]);
 
 			const error = new Error('Some error');
 			itemStateUpdater.update.withArgs(item, 'not-found').rejects(error);

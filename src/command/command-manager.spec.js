@@ -10,6 +10,7 @@ describe('CommandManager', () => {
 	let manager;
 	let logger;
 	let queue;
+	let itemStateUpdater;
 	let item;
 	let firstCommandFactory;
 	let firstCommand;
@@ -40,23 +41,41 @@ describe('CommandManager', () => {
 		firstCommandFactory = {
 			create: sinon.stub().returns(firstCommand)
 		};
-		manager = new CommandManager(logger, queue, firstCommandFactory);
+		itemStateUpdater = {
+			update: sinon.stub().resolves()
+		};
+		manager = new CommandManager(logger, queue, itemStateUpdater, firstCommandFactory);
 	});
 
-	describe('#add', () => {
+	describe('add', () => {
 		describe('without a command', () => {
-			it('creates and enqueues the first command', () => {
+			it('updates the item state to "enqueued" before enqueuing the item', () => {
 				manager.add(item);
-				expect(firstCommandFactory.create).to.have.been.calledWith(item);
-				expect(queue.add).to.have.been.calledWith(firstCommand);
+				itemStateUpdater.update.rejects(new Error('Some error'));
+				expect(itemStateUpdater.update).to.have.been.calledWith(item, 'enqueued');
+				expect(queue.add).not.to.have.been.called;
+			});
+
+			it('creates and enqueues the first command', () => {
+				return manager.add(item).then(() => {
+					expect(firstCommandFactory.create).to.have.been.calledWith(item);
+					expect(queue.add).to.have.been.calledWith(firstCommand);
+				});
 			});
 		});
 
 		describe('with a command', () => {
 			it('enqueues the command', () => {
-				manager.add(item, firstCommand);
-				expect(firstCommandFactory.create).not.to.have.been.called;
-				expect(queue.add).to.have.been.calledWith(firstCommand);
+				return manager.add(item, firstCommand).then(() => {
+					expect(firstCommandFactory.create).not.to.have.been.called;
+					expect(queue.add).to.have.been.calledWith(firstCommand);
+				});
+			});
+
+			it('does not update the item state', () => {
+				return manager.add(item, firstCommand).then(() => {
+					expect(itemStateUpdater.update).not.to.have.been.called;
+				});
 			});
 		});
 	});

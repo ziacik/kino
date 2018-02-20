@@ -3,18 +3,14 @@ class SeedsScorer {
 		this.logger = logger;
 	}
 
-	async score(item, torrent) {
-		const result = await this._doScore(torrent);
-		this.logger.debug(this, 'Scoring result for torrent', torrent, 'for', item, 'is', result);
+	async score(item, torrents) {
+		const result = torrents.slice().sort((a, b) => b.seeders - a.seeders);
+		this.logger.debug(this, 'Scoring result for torrents', torrents, 'found for', item, 'is', result);
 		return result;
 	}
 
 	toString() {
 		return 'Seeds Scorer';
-	}
-
-	async _doScore(torrent) {
-		return torrent.seeders ? 1 : 0;
 	}
 }
 

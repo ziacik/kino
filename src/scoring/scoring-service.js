@@ -4,21 +4,51 @@ class ScoringService {
 		this.scorers = scorers;
 	}
 
-	score(item, torrent) {
-		let scorerPromises = this.scorers.map(scorer => this._scoreWith(item, torrent, scorer));
-		return Promise.all(scorerPromises)
-			.then(results => results.reduce((sum, result) => sum * result, 1))
-			.then(result => {
-				this.logger.debug(this, 'Scoring result for torrent', torrent, 'for', item, 'is', result);
-				return result;
+	async score(item, torrents) {
+		if (!torrents.length) {
+			return;
+		}
+
+		const scoring = torrents.map(() => 0);
+
+		for (const scorer of this.scorers) {
+			const sortedTorrents = await this._scoreWith(item, torrents, scorer);
+
+			if (!sortedTorrents) {
+				continue;
+			}
+
+			torrents.forEach((torrent, i) => {
+				const position = sortedTorrents.indexOf(torrent);
+				const score = position >= 0 ? position : (torrents.length - 1);
+				scoring[i] += score;
 			});
+		}
+
+		let bestScore = scoring[0];
+		let bestI = 0;
+
+		for (let i = 1; i < scoring.length; i++) {
+			const score = scoring[i];
+
+			if (score < bestScore) {
+				bestScore = score;
+				bestI = i;
+			}
+		}
+
+		const result = torrents[bestI];
+
+		this.logger.debug(this, 'Scoring result for torrents', torrents, 'found for', item, 'is', result);
+		return result;
 	}
 
-	_scoreWith(item, torrent, scorer) {
-		return scorer.score(item, torrent).catch(err => {
+	async _scoreWith(item, torrents, scorer) {
+		try {
+			return await scorer.score(item, torrents);
+		} catch(err) {
 			this.logger.warn(this, 'Scorer', scorer, 'failed with', err);
-			return 1;
-		});
+		}
 	}
 }
 
@@ -26,6 +56,5 @@ module.exports = ScoringService;
 module.exports['@singleton'] = true;
 module.exports['@require'] = [
 	'../logger',
-	'./scorer/season-scorer',
 	'./scorer/seeds-scorer'
 ];
