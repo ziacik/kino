@@ -1,49 +1,50 @@
+const { promisify } = require('util');
+
 class TransmissionService {
 	constructor(logger, clientFactory) {
 		this.logger = logger;
-		this.client = new clientFactory({
-			url: 'http://localhost:9091/transmission/rpc'
-		});
+		this.client = new clientFactory();
+		this.addUrl = promisify(this.client.addUrl).bind(this.client);
+		this.get = promisify(this.client.get).bind(this.client);
 	}
 
-	download(torrent) {
-		return this.client.torrentAdd({
-			filename: torrent.magnetLink
-		}).then(() => {
+	async download(torrent) {
+		try {
+			const result = await this.addUrl(torrent.magnetLink);
 			this.logger.info(this, 'Torrent', torrent, 'has been added');
-		}).catch(err => {
-			this.logger.error(this, 'Adding a torrent', torrent, 'failed with', err);
-			throw err;
-		});
+			return result;
+		} catch(e) {
+			this.logger.error(this, 'Adding a torrent', torrent, 'failed with', e);
+			throw e;
+		}
 	}
 
-	getState(torrentId) {
-		return this.client.torrentGet({
-			ids: [torrentId],
-			fields: ['id', 'isFinished', 'isStalled']
-		}).then(result => {
-			let torrentInfo = result.arguments.torrents.filter(it => it.id === torrentId)[0];
+	async getState(torrentId) {
+		try {
+			const result = await this.get([torrentId]);
 
-			if (!torrentInfo) {
+			if (!result || !result.torrents || !result.torrents.length) {
 				return 'removed';
 			}
 
-			if (torrentInfo.isFinished) {
+			const state = result.torrents[0].status;
+
+			if (state === this.client.status.SEED_WAIT || state === this.client.status.SEED || state === this.client.status.STOPPED) {
 				return 'finished';
 			}
 
-			if (torrentInfo.isStalled) {
+			if (state === this.client.status.ISOLATED) {
 				return 'stalled';
 			}
 
 			return 'downloading';
-		}).catch(err => {
-			this.logger.error(this, 'Requesting state of the torrent', torrentId, 'failed with', err);
-			throw err;
-		});
+		} catch(e) {
+			this.logger.error(this, 'Requesting state of the torrent', torrentId, 'failed with', e);
+			throw e;
+		}
 	}
 }
 
 module.exports = TransmissionService;
 module.exports['@singleton'] = true;
-module.exports['@require'] = ['../logger', 'powersteer'];
+module.exports['@require'] = ['../logger', 'transmission'];

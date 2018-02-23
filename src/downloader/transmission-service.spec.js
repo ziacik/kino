@@ -12,15 +12,19 @@ describe('TransmissionService', () => {
 	let torrent;
 	let clientFactory;
 	let client;
+	let addUrlResult;
 	let torrentStateResult;
 
 	beforeEach(() => {
+		addUrlResult = {
+			id: 123,
+			hashString: 'some-hash',
+			name: 'torrent-name'
+		};
 		torrentStateResult = {
-			arguments: {
-				torrents: [{
-					id: 'torrent-id'
-				}]
-			}
+			torrents: [{
+				status: 4
+			}]
 		};
 		logger = {
 			info: sinon.stub(),
@@ -30,8 +34,14 @@ describe('TransmissionService', () => {
 			magnetLink: 'magnet-link'
 		};
 		client = {
-			torrentAdd: sinon.stub().resolves(),
-			torrentGet: sinon.stub().resolves(torrentStateResult)
+			addUrl: sinon.stub().yields(null, addUrlResult),
+			get: sinon.stub().yields(null, torrentStateResult),
+			status: {
+				STOPPED: 0,
+				SEED_WAIT: 5,
+				SEED: 6,
+				ISOLATED: 7
+			}
 		};
 		clientFactory = sinon.stub().returns(client);
 		service = new TransmissionService(logger, clientFactory);
@@ -39,15 +49,13 @@ describe('TransmissionService', () => {
 
 	describe('#constructor', () => {
 		it('creates a client from factory', () => {
-			expect(clientFactory).to.have.been.calledWith({
-				url: 'http://localhost:9091/transmission/rpc'
-			});
+			expect(clientFactory).to.have.been.calledWith();
 		});
 	});
 
 	describe('#download', () => {
 		it('logs an error in case of error and rethrows', () => {
-			client.torrentAdd.rejects(test.error);
+			client.addUrl.yields(test.error);
 			return service.download(torrent).then(() => {
 				throw new Error('Not expected to resolve');
 			}).catch(err => {
@@ -58,9 +66,7 @@ describe('TransmissionService', () => {
 
 		it('adds a torrent via magnetLink', () => {
 			return service.download(torrent).then(() => {
-				expect(client.torrentAdd).to.have.been.calledWith({
-					filename: 'magnet-link'
-				});
+				expect(client.addUrl).to.have.been.calledWith('magnet-link');
 			});
 		});
 
@@ -73,7 +79,7 @@ describe('TransmissionService', () => {
 
 	describe('#getState', () => {
 		it('logs an error in case of error and rethrows', () => {
-			client.torrentGet.rejects(test.error);
+			client.get.yields(test.error);
 			return service.getState('torrent-id').then(() => {
 				throw new Error('Not expected to resolve');
 			}).catch(e => {
@@ -84,21 +90,33 @@ describe('TransmissionService', () => {
 
 		it('requests a state of the torrent', () => {
 			return service.getState('torrent-id').then(() => {
-				expect(client.torrentGet).to.have.been.calledWith(sinon.match({
-					ids: ['torrent-id']
-				}));
+				expect(client.get).to.have.been.calledWith(['torrent-id']);
 			});
 		});
 
-		it('returns "finished" when the torrent is finished', () => {
-			torrentStateResult.arguments.torrents[0].isFinished = true;
+		it('returns "finished" when the torrent is stopped', () => {
+			torrentStateResult.torrents[0].status = client.status.STOPPED;
+			return service.getState('torrent-id').then(state => {
+				expect(state).to.equal('finished');
+			});
+		});
+
+		it('returns "finished" when the torrent is seeding', () => {
+			torrentStateResult.torrents[0].status = client.status.SEED;
+			return service.getState('torrent-id').then(state => {
+				expect(state).to.equal('finished');
+			});
+		});
+
+		it('returns "finished" when the torrent is about to be seeding', () => {
+			torrentStateResult.torrents[0].status = client.status.SEED_WAIT;
 			return service.getState('torrent-id').then(state => {
 				expect(state).to.equal('finished');
 			});
 		});
 
 		it('returns "stalled" when the torrent is stalled', () => {
-			torrentStateResult.arguments.torrents[0].isStalled = true;
+			torrentStateResult.torrents[0].status = client.status.ISOLATED;
 			return service.getState('torrent-id').then(state => {
 				expect(state).to.equal('stalled');
 			});
@@ -111,7 +129,7 @@ describe('TransmissionService', () => {
 		});
 
 		it('returns "removed" when the torrent is removed', () => {
-			torrentStateResult.arguments.torrents = [];
+			torrentStateResult.torrents = [];
 			return service.getState('torrent-id').then(state => {
 				expect(state).to.equal('removed');
 			});
