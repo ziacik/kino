@@ -12,7 +12,7 @@ class TransmissionService {
 		try {
 			const result = await this.addUrl(torrent.magnetLink);
 			this.logger.info(this, 'Torrent', torrent, 'has been added');
-			return result;
+			return result.id;
 		} catch(e) {
 			this.logger.error(this, 'Adding a torrent', torrent, 'failed with', e);
 			throw e;
@@ -23,13 +23,18 @@ class TransmissionService {
 		try {
 			const result = await this.get([torrentId]);
 
+			console.log(result);
+
 			if (!result || !result.torrents || !result.torrents.length) {
+				console.log('removed');
 				return 'removed';
 			}
 
 			const state = result.torrents[0].status;
 
-			if (state === this.client.status.SEED_WAIT || state === this.client.status.SEED || state === this.client.status.STOPPED) {
+			console.log('STATE', state);
+
+			if ( state === this.client.status.STOPPED) {
 				return 'finished';
 			}
 
